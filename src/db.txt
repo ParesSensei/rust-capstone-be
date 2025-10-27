@@ -1,0 +1,35 @@
+CREATE TABLE koridor (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    kode TEXT NOT NULL,
+    name TEXT NOT NULL,
+    direction TEXT NOT NULL,
+    via TEXT NOT NULL
+);
+
+CREATE TABLE halte (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    koridor_id INTEGER,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    information TEXT NOT NULL,
+    FOREIGN KEY (koridor_id) REFERENCES koridor(id)
+);
+
+CREATE TABLE rute (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    koridor_id INTEGER NOT NULL,
+    sequence INTEGER NOT NULL,
+    street_name TEXT NOT NULL,
+    direction TEXT NOT NULL,
+    FOREIGN KEY (koridor_id) REFERENCES koridor(id)
+);
+
+CREATE TABLE jadwal (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    koridor_id INTEGER NOT NULL,
+    halte_id INTEGER NOT NULL,
+    departure TEXT NOT NULL,
+    day TEXT NOT NULL,
+    FOREIGN KEY (koridor_id) REFERENCES koridor(id),
+    FOREIGN KEY (halte_id) REFERENCES halte(id)
+);
