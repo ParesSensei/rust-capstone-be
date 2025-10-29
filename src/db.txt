@@ -33,3 +33,10 @@ CREATE TABLE jadwal (
     FOREIGN KEY (koridor_id) REFERENCES koridor(id),
     FOREIGN KEY (halte_id) REFERENCES halte(id)
 );
+
+CREATE TABLE user (
+    id INTEGER  PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL,
+    password TEXT NOT NULL
+);
+
