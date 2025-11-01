@@ -1,7 +1,7 @@
+use crate::app_state::AppState;
 use axum::{extract::State, response::Json};
 use serde::Serialize;
-use sqlx::{FromRow, SqlitePool};
-use crate::user::AppState;
+use sqlx::FromRow;
 
 #[derive(Serialize, FromRow)]
 pub struct Schedule {

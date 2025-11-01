@@ -1,12 +1,13 @@
+use crate::app_state::AppState;
 use axum::{
-    extract::State,
-    response::{IntoResponse, Json},
-    http::StatusCode,
     debug_handler,
+    extract::State,
+    http::StatusCode,
+    response::{IntoResponse, Json},
 };
-use bcrypt::{hash, verify, DEFAULT_COST};
+use bcrypt::{DEFAULT_COST, hash, verify};
 use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, SqlitePool};
+use sqlx::FromRow;
 
 #[derive(Serialize)]
 pub struct UserResponse {
@@ -32,11 +33,6 @@ pub struct UserSql {
     pub password: String,
 }
 
-#[derive(Clone)]
-pub struct AppState {
-    pub pool: SqlitePool,
-}
-
 #[debug_handler]
 pub async fn register_user(
     State(state): State<AppState>,
@@ -49,8 +45,8 @@ pub async fn register_user(
         payload.username,
         hashed
     )
-        .execute(&state.pool)
-        .await;
+    .execute(&state.pool)
+    .await;
 
     match result {
         Ok(_) => Json(UserResponse {
@@ -83,11 +79,7 @@ pub async fn login_user(
         Ok(None) => (StatusCode::NOT_FOUND, "user not found").into_response(),
         Err(err) => {
             eprintln!("DB error: {:?}", err);
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                "Internal server error",
-            )
-                .into_response()
+            (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error").into_response()
         }
     }
 }
