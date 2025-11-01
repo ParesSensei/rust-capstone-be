@@ -76,7 +76,7 @@ pub async fn login_user(
                 (StatusCode::UNAUTHORIZED, "Login failed").into_response()
             }
         }
-        Ok(None) => (StatusCode::NOT_FOUND, "user not found").into_response(),
+        Ok(None) => (StatusCode::NOT_FOUND, "User not found").into_response(),
         Err(err) => {
             eprintln!("DB error: {:?}", err);
             (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error").into_response()

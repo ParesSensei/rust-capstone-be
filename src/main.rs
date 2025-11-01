@@ -13,6 +13,7 @@ mod admin;
 use crate::app_state::AppState;
 use schedule::view_schedule;
 use user::{login_user, register_user};
+use admin::admin_register_handler;
 use admin::admin_login_handler;
 
 #[tokio::main]
@@ -31,6 +32,7 @@ async fn main() {
         .route("/jadwal", get(view_schedule))
         .route("/register", post(register_user))
         .route("/login", post(login_user))
+        .route("/admin_register", post(admin_register_handler))
         .route("/admin_login", post(admin_login_handler))
         .with_state(state);
 
