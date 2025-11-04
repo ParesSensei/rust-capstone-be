@@ -41,8 +41,8 @@ Integrated logging using the tracing and tracing-subscriber crates (in progress)
 # 🚀 Running the Application
 ```rust
 # 1) Clone the repository
-git clone https://github.com/ParesSensei/rust-axum3
-cd rust-axum3
+git clone https://github.com/ParesSensei/rust-capstone-be
+cd rust-capstone-be
 
 # 2) Run in development mode
 cargo run
