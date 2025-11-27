@@ -16,9 +16,10 @@ use admin::admin_login_handler;
 async fn main() {
     dotenvy::dotenv().ok();
 
-    let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
+    let db_url = std::env::var("DATABASE_URL")
+        .expect("DATABASE_URL is not set in .env file");
 
-    let pool = SqlitePool::connect(&db_url)
+    let pool = sqlx::postgres::PgPool::connect(&db_url)
         .await
         .expect("Failed to create Sqlite database pool");
 
