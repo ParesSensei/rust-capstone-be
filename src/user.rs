@@ -18,12 +18,14 @@ pub struct UserResponse {
 pub struct RegisterRequest {
     pub username: String,
     pub password: String,
+    pub email: String,
 }
 
 #[derive(Deserialize)]
 pub struct LoginRequest {
     pub username: String,
     pub password: String,
+    pub email: String,
 }
 
 #[derive(FromRow)]
@@ -31,6 +33,7 @@ pub struct UserSql {
     pub id: i64,
     pub username: String,
     pub password: String,
+    pub email: String,
 }
 
 #[debug_handler]
@@ -41,9 +44,10 @@ pub async fn register_user(
     let hashed = hash(&payload.password, DEFAULT_COST).unwrap();
 
     let result = sqlx::query!(
-        "INSERT INTO user(username, password) VALUES (?1, ?2)",
+        "INSERT INTO users(username, password, email) VALUES ($1, $2, $3)",
         payload.username,
-        hashed
+        hashed,
+        payload.email,
     )
     .execute(&state.pool)
     .await;
@@ -63,7 +67,7 @@ pub async fn login_user(
     State(state): State<AppState>,
     Json(payload): Json<LoginRequest>,
 ) -> impl IntoResponse {
-    let result = sqlx::query_as::<_, UserSql>("SELECT * FROM user WHERE username = ?")
+    let result = sqlx::query_as::<_, UserSql>("SELECT * FROM users WHERE username = ?")
         .bind(&payload.username)
         .fetch_optional(&state.pool)
         .await;

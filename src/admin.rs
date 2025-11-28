@@ -16,12 +16,14 @@ pub struct RegisterResponse {
 pub struct RegisterRequest {
     username: String,
     password: String,
+    email: String,
 }
 
 #[derive(Deserialize)]
 pub struct LoginRequest {
     username: String,
     password: String,
+    email: String,
 }
 
 #[debug_handler]
@@ -33,9 +35,10 @@ pub async fn admin_register_handler(
     let hashed = hash(&payload.password, DEFAULT_COST).unwrap();
 
     let result = sqlx::query!(
-        "INSERT INTO admin(username, password) VALUES (?1, ?2)",
+        "INSERT INTO admin(username, password, email) VALUES ($1, $2, $3)",
         payload.username,
-        hashed
+        hashed,
+        payload.email
     )
         .execute(&state.pool)
         .await;
