@@ -8,16 +8,20 @@ use axum::{
 use bcrypt::{DEFAULT_COST, hash, verify};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
+use validator::Validate;
 
 #[derive(Serialize)]
 pub struct UserResponse {
     pub message: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Validate)]
 pub struct RegisterRequest {
+    #[validate(length(min = 4, max = 16, message= "username min 4 and max 16 characters"))]
     pub username: String,
+    #[validate(length(min = 8, max = 16, message= "password min 8 and max 16 characters"))]
     pub password: String,
+    #[validate(email)]
     pub email: String,
 }
 
@@ -25,12 +29,11 @@ pub struct RegisterRequest {
 pub struct LoginRequest {
     pub username: String,
     pub password: String,
-    pub email: String,
 }
 
 #[derive(FromRow)]
 pub struct UserSql {
-    pub id: i64,
+    pub id: i32,
     pub username: String,
     pub password: String,
     pub email: String,
@@ -40,7 +43,17 @@ pub struct UserSql {
 pub async fn register_user(
     State(state): State<AppState>,
     Json(payload): Json<RegisterRequest>,
-) -> Json<UserResponse> {
+) -> impl IntoResponse {
+
+    if let Err(err) = payload.validate() {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(UserResponse {
+                message: format!("{}", err),
+            }),
+        );
+    }
+
     let hashed = hash(&payload.password, DEFAULT_COST).unwrap();
 
     let result = sqlx::query!(
@@ -53,12 +66,19 @@ pub async fn register_user(
     .await;
 
     match result {
-        Ok(_) => Json(UserResponse {
-            message: "Successfully registered user".to_string(),
-        }),
-        Err(e) => Json(UserResponse {
-            message: format!("Failed to register user: {}", e),
-        }),
+        Ok(_) => (
+            StatusCode::OK,
+            Json(UserResponse {
+                message: "Successfully registered user".to_string(),
+            }),
+        ),
+
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(UserResponse {
+                message: format!("Failed to register user: {}", e),
+            }),
+        ),
     }
 }
 
@@ -67,14 +87,14 @@ pub async fn login_user(
     State(state): State<AppState>,
     Json(payload): Json<LoginRequest>,
 ) -> impl IntoResponse {
-    let result = sqlx::query_as::<_, UserSql>("SELECT * FROM users WHERE username = ?")
+    let result = sqlx::query_as::<_, UserSql>("SELECT * FROM users WHERE username = $1")
         .bind(&payload.username)
         .fetch_optional(&state.pool)
         .await;
 
     match result {
         Ok(Some(user)) => {
-            if verify(payload.password, &user.password).unwrap_or(false) {
+            if verify(&payload.password, &user.password).unwrap_or(false) {
                 (StatusCode::OK, "Logged in").into_response()
             } else {
                 (StatusCode::UNAUTHORIZED, "Login failed").into_response()

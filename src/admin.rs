@@ -23,14 +23,13 @@ pub struct RegisterRequest {
 pub struct LoginRequest {
     username: String,
     password: String,
-    email: String,
 }
 
 #[debug_handler]
 pub async fn admin_register_handler(
     State(state): State<AppState>,
     Json(payload): Json<RegisterRequest>,
-) -> Json<RegisterResponse> {
+) -> impl IntoResponse {
 
     let hashed = hash(&payload.password, DEFAULT_COST).unwrap();
 
@@ -59,7 +58,7 @@ pub async fn admin_login_handler(
     State(state): State<AppState>,
     Json(payload): Json<LoginRequest>,
 ) -> impl IntoResponse {
-    let result = sqlx::query_as::<_, UserSql>("SELECT * FROM admin WHERE username = ?")
+    let result = sqlx::query_as::<_, UserSql>("SELECT * FROM admin WHERE username = $1")
         .bind(&payload.username)
         .fetch_optional(&state.pool)
         .await;
