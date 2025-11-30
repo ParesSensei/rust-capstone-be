@@ -5,7 +5,7 @@ A simple **REST API** built with **Axum (Rust)** featuring basic request handler
 Main framework: **Axum** — focused on ergonomics and modularity; fully integrated with `tower` and `tower-http`.  
 📚 See Axum documentation at [docs.rs/axum](https://docs.rs/axum).
 
-Database: **SQLite3** (planning migrate to **PostgreSQL**).
+Database: **PostgreSQL**.
 
 ---
 
@@ -39,14 +39,70 @@ let user = sqlx::query_as!(User, "SELECT * FROM users WHERE id = ?", user_id)
 Integrated logging using the tracing and tracing-subscriber crates (in progress) for structured and contextual event logging.
 
 # 🚀 Running the Application
-```rust
+```bash
 # 1) Clone the repository
 git clone https://github.com/ParesSensei/rust-capstone-be
 cd rust-capstone-be
 
 # 2) Run in development mode
 cargo run
+
+# 3) Run database
+postgres://username:password@host:port/exploremas
 ```
+
+
+# API DOCS
+documentation to use api.
+1. route("/register", post(register_user))  
+example: 
+```json
+{
+    "username": "hayanambatukam",
+    "password": "password",
+    "email": "aha@gmail.com"
+}
+```
+response:
+
+2. route("/login", post(login_user))  
+example: 
+```json
+{
+  "username": "hayanambatukam",
+  "password": "password"
+}
+```
+response success:
+```Logged in```  
+response failed(wrong password):
+```Login failed```
+3. route("/admin_register", post(admin_register_handler))  
+example:
+```json
+{
+  "username": "admin",
+  "password": "admin",
+  "email": "admin@gmail.com"
+}
+```
+response:
+```json
+{
+    "message": "Success create new admin"
+}
+```
+
+4. route("/admin_login", post(admin_login_handler))  
+example:
+```json
+{
+  "username": "admin",
+  "password": "admin"
+}
+```
+response:
+```Logged in```
 
 # 📚 Notes
 - This project is developed as a Rust capstone project with focus on:
