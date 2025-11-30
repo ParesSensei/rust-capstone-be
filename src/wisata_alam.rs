@@ -1,0 +1,62 @@
+use crate::app_state::AppState;
+use axum::extract::State;
+use axum::http::StatusCode;
+use axum::response::IntoResponse;
+use axum::{debug_handler, Json};
+use serde::{Deserialize, Serialize};
+use std::result;
+
+#[derive(Deserialize)]
+struct WisataSql {
+    name: String,
+    category: String,
+    address: String,
+    open: i32,
+    close: i32,
+    htm: i32,
+    gmaps: String,
+    pictures: String,
+}
+
+#[derive(Serialize)]
+pub struct WisataResponse {
+    pub message: String,
+}
+
+#[debug_handler]
+pub async fn create_wisata(
+    State(state): State<AppState>,
+    Json(payload): Json<WisataSql>,
+) -> impl IntoResponse {
+    let result = sqlx::query!(
+        "insert into wisata_alam(nama_tempat, kategori, alamat, jam_buka, jam_tutup, htm, link_gmaps, link_foto)
+        values ($1, $2, $3, $4, $5, $6, $7, $8)",
+        payload.name,
+        payload.category,
+        payload.address,
+        payload.open,
+        payload.close,
+        payload.htm,
+        payload.gmaps,
+        payload.pictures,
+    )
+    .execute(&state.pool)
+    .await
+    .unwrap();
+
+    match result {
+        Ok(_) => (
+            StatusCode::OK,
+            Json(WisataResponse {
+                message: "Wisata created".to_string().into_response(),
+            }),
+        ),
+
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(WisataResponse {
+                message: format!("erorr: {}", e).into_response(),
+            }),
+        ),
+    }
+}

@@ -1,23 +1,21 @@
-use axum::{
-    Router,
-    routing::{post},
-};
+use axum::{routing::post, Router};
 
+mod admin;
 mod app_state;
 mod user;
-mod admin;
+mod wisata_alam;
 
 use crate::app_state::AppState;
-use user::{login_user, register_user};
-use admin::admin_register_handler;
+use crate::wisata_alam::create_wisata;
 use admin::admin_login_handler;
+use admin::admin_register_handler;
+use user::{login_user, register_user};
 
 #[tokio::main]
 async fn main() {
     dotenvy::dotenv().ok();
 
-    let db_url = std::env::var("DATABASE_URL")
-        .expect("DATABASE_URL is not set in .env file");
+    let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
 
     let pool = sqlx::postgres::PgPool::connect(&db_url)
         .await
@@ -30,6 +28,7 @@ async fn main() {
         .route("/login", post(login_user))
         .route("/admin_register", post(admin_register_handler))
         .route("/admin_login", post(admin_login_handler))
+        .route("add_wisata", post(create_wisata))
         .with_state(state);
 
     println!("Running server on http://localhost:3000");
@@ -37,7 +36,6 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -50,7 +48,10 @@ mod tests {
 
         let connection: PgConnection = PgConnection::connect(db_url.as_str()).await?;
 
-        connection.close().await.expect("Unable to close DB connection");
+        connection
+            .close()
+            .await
+            .expect("Unable to close DB connection");
         Ok(())
     }
 }

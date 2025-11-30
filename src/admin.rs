@@ -1,11 +1,11 @@
+use crate::app_state::AppState;
+use crate::user::UserSql;
 use axum::extract::State;
 use axum::http::StatusCode;
-use axum::{debug_handler, Json};
 use axum::response::IntoResponse;
-use bcrypt::{hash, verify, DEFAULT_COST};
-use crate::app_state::AppState;
+use axum::{Json, debug_handler};
+use bcrypt::{DEFAULT_COST, hash, verify};
 use serde::{Deserialize, Serialize};
-use crate::user::UserSql;
 
 #[derive(Serialize)]
 pub struct RegisterResponse {
@@ -30,7 +30,6 @@ pub async fn admin_register_handler(
     State(state): State<AppState>,
     Json(payload): Json<RegisterRequest>,
 ) -> impl IntoResponse {
-
     let hashed = hash(&payload.password, DEFAULT_COST).unwrap();
 
     let result = sqlx::query!(
@@ -39,18 +38,16 @@ pub async fn admin_register_handler(
         hashed,
         payload.email
     )
-        .execute(&state.pool)
-        .await;
+    .execute(&state.pool)
+    .await;
 
     match result {
-        Ok(_) => {Json(RegisterResponse {
+        Ok(_) => Json(RegisterResponse {
             message: "Success create new admin".to_string(),
-            })
-        },
-        Err(err) => { Json(RegisterResponse {
+        }),
+        Err(err) => Json(RegisterResponse {
             message: "Failed create new admin".to_string(),
-            })
-        }
+        }),
     }
 }
 
@@ -73,8 +70,8 @@ pub async fn admin_login_handler(
         }
         Ok(None) => (StatusCode::NOT_FOUND, "User not found").into_response(),
         Err(err) => {
-                eprintln!("DB error: {:?}", err);
-                (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error").into_response()
-            }
+            eprintln!("DB error: {:?}", err);
+            (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error").into_response()
         }
     }
+}

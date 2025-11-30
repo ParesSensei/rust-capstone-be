@@ -17,9 +17,9 @@ pub struct UserResponse {
 
 #[derive(Deserialize, Validate)]
 pub struct RegisterRequest {
-    #[validate(length(min = 4, max = 16, message= "username min 4 and max 16 characters"))]
+    #[validate(length(min = 4, max = 16, message = "username min 4 and max 16 characters"))]
     pub username: String,
-    #[validate(length(min = 8, max = 16, message= "password min 8 and max 16 characters"))]
+    #[validate(length(min = 8, max = 16, message = "password min 8 and max 16 characters"))]
     pub password: String,
     #[validate(email)]
     pub email: String,
@@ -44,7 +44,6 @@ pub async fn register_user(
     State(state): State<AppState>,
     Json(payload): Json<RegisterRequest>,
 ) -> impl IntoResponse {
-
     if let Err(err) = payload.validate() {
         return (
             StatusCode::BAD_REQUEST,

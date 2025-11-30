@@ -76,7 +76,7 @@ example:
 response success:
 ```Logged in```  
 response failed(wrong password):
-```Login failed```
+```Login failed```  
 3. route("/admin_register", post(admin_register_handler))  
 example:
 ```json
