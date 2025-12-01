@@ -21,6 +21,11 @@ async fn main() {
         .await
         .expect("Failed to create Sqlite database pool");
 
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await
+        .expect("Failed to run migrations");
+
     let state = AppState { pool };
 
     let app = Router::new()
@@ -28,7 +33,7 @@ async fn main() {
         .route("/login", post(login_user))
         .route("/admin_register", post(admin_register_handler))
         .route("/admin_login", post(admin_login_handler))
-        .route("add_wisata", post(create_wisata))
+        .route("/add_wisata", post(create_wisata))
         .with_state(state);
 
     println!("Running server on http://localhost:3000");

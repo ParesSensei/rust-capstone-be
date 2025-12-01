@@ -4,15 +4,14 @@ use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::{debug_handler, Json};
 use serde::{Deserialize, Serialize};
-use std::result;
 
 #[derive(Deserialize)]
-struct WisataSql {
+pub struct WisataSql {
     name: String,
     category: String,
     address: String,
-    open: i32,
-    close: i32,
+    open: String,
+    close: String,
     htm: i32,
     gmaps: String,
     pictures: String,
@@ -41,21 +40,20 @@ pub async fn create_wisata(
         payload.pictures,
     )
     .execute(&state.pool)
-    .await
-    .unwrap();
+    .await;
 
     match result {
         Ok(_) => (
             StatusCode::OK,
             Json(WisataResponse {
-                message: "Wisata created".to_string().into_response(),
+                message: "Wisata created".to_string(),
             }),
         ),
 
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(WisataResponse {
-                message: format!("erorr: {}", e).into_response(),
+                message: format!("erorr: {}", e),
             }),
         ),
     }
