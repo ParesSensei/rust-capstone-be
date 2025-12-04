@@ -6,6 +6,7 @@ mod app_state;
 mod user;
 mod wisata_alam;
 mod wisata_pendidikan;
+mod kuliner;
 
 use crate::app_state::AppState;
 use crate::wisata_alam::create_wisata;
@@ -17,6 +18,9 @@ use wisata_alam::get_wisata_alam_by_id;
 use crate::wisata_pendidikan::get_wisata_pendidikan_by_id;
 use crate::wisata_pendidikan::get_wisata_pendidikan;
 use crate::wisata_pendidikan::create_wisata_pendidikan;
+use crate::kuliner::create_kuliner;
+use crate::kuliner::get_kuliner;
+use crate::kuliner::get_kuliner_id;
 
 #[tokio::main]
 async fn main() {
@@ -47,6 +51,9 @@ async fn main() {
         .route("/add_wisata_pendidikan", post(create_wisata_pendidikan))
         .route("/wisata_pendidikan", get(get_wisata_pendidikan))
         .route("/wisata_pendidikan/{id}", get(get_wisata_pendidikan_by_id))
+        .route("/kuliner", post(create_kuliner))
+        .route("/get_kuliner", get(get_kuliner))
+        .route("/kuliner/{id}", get(get_kuliner_id))
         .with_state(state);
 
     println!("Running server on http://localhost:3000");
