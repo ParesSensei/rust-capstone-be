@@ -1,9 +1,10 @@
 use crate::app_state::AppState;
-use axum::extract::State;
+use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::{debug_handler, Json};
 use serde::{Deserialize, Serialize};
+use sqlx::FromRow;
 
 #[derive(Deserialize)]
 pub struct WisataSql {
@@ -15,6 +16,18 @@ pub struct WisataSql {
     htm: i32,
     gmaps: String,
     pictures: String,
+}
+
+#[derive(Serialize, FromRow)]
+pub struct WisataResponseModel {
+    nama_tempat: String,
+    kategori: String,
+    alamat: String,
+    jam_buka: String,
+    jam_tutup: String,
+    htm: i32,
+    link_gmaps: String,
+    link_foto: String,
 }
 
 #[derive(Serialize)]
@@ -55,5 +68,35 @@ pub async fn create_wisata(
                 message: format!("erorr: {}", e),
             }),
         ),
+    }
+}
+
+#[debug_handler]
+pub async fn get_wisata_alam(State(state): State<AppState>) -> impl IntoResponse {
+    let result = sqlx::query_as::<_, WisataResponseModel>("select * from wisata_alam")
+    .fetch_one(&state.pool)
+    .await;
+
+    match result {
+        Ok(data) => Json(data).into_response(),
+        Err(err) => {
+            eprintln!("Db error {:?}", err);
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
+    }
+}
+
+pub async fn get_wisata_alam_by_id(State(state): State<AppState>, Path(id): Path<i32>) -> impl IntoResponse {
+    let result = sqlx::query_as::<_, WisataResponseModel>(
+        "SELECT * FROM wisata_alam WHERE id = $1"
+    ).bind(id).fetch_optional(&state.pool).await;
+
+    match result {
+        Ok(Some(data)) => Json(data).into_response(),
+        Ok(None) => (StatusCode::NOT_FOUND, "Not found").into_response(),
+        Err(err) => {
+            eprintln!("DB error: {:?}", err);
+            StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        }
     }
 }

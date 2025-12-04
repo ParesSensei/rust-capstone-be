@@ -1,4 +1,5 @@
 use axum::{routing::post, Router};
+use axum::routing::get;
 
 mod admin;
 mod app_state;
@@ -10,6 +11,8 @@ use crate::wisata_alam::create_wisata;
 use admin::admin_login_handler;
 use admin::admin_register_handler;
 use user::{login_user, register_user};
+use wisata_alam::get_wisata_alam;
+use wisata_alam::get_wisata_alam_by_id;
 
 #[tokio::main]
 async fn main() {
@@ -35,6 +38,8 @@ async fn main() {
         .route("/admin_register", post(admin_register_handler))
         .route("/admin_login", post(admin_login_handler))
         .route("/add_wisata", post(create_wisata))
+        .route("/wisata_alam", get(get_wisata_alam))
+        .route("/wisata_alam/{id}", get(get_wisata_alam_by_id))
         .with_state(state);
 
     println!("Running server on http://localhost:3000");
