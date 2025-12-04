@@ -22,10 +22,10 @@ async fn main() {
         .await
         .expect("Failed to create postgre database pool");
 
-    sqlx::migrate!()
-        .run(&pool)
-        .await
-        .expect("Failed to run migrations");
+    // sqlx::migrate!()
+    //     .run(&pool)
+    //     .await
+    //     .expect("Failed to run migrations");
 
     let state = AppState { pool };
 

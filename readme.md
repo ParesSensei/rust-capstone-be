@@ -104,6 +104,10 @@ example:
 response:
 ```Logged in```
 
+# 📚 Database migrations error
+because of the database error, so currently we are creating a manual database without migration.
+you can check in [schema_manual.txt](schema_manual.txt)
+
 # 📚 Notes
 - This project is developed as a Rust capstone project with focus on:
 - Modular and maintainable project structure.
