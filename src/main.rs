@@ -5,6 +5,7 @@ mod admin;
 mod app_state;
 mod user;
 mod wisata_alam;
+mod wisata_pendidikan;
 
 use crate::app_state::AppState;
 use crate::wisata_alam::create_wisata;
@@ -13,6 +14,9 @@ use admin::admin_register_handler;
 use user::{login_user, register_user};
 use wisata_alam::get_wisata_alam;
 use wisata_alam::get_wisata_alam_by_id;
+use crate::wisata_pendidikan::get_wisata_pendidikan_by_id;
+use crate::wisata_pendidikan::get_wisata_pendidikan;
+use crate::wisata_pendidikan::create_wisata_pendidikan;
 
 #[tokio::main]
 async fn main() {
@@ -40,6 +44,9 @@ async fn main() {
         .route("/add_wisata", post(create_wisata))
         .route("/wisata_alam", get(get_wisata_alam))
         .route("/wisata_alam/{id}", get(get_wisata_alam_by_id))
+        .route("/add_wisata_pendidikan", post(create_wisata_pendidikan))
+        .route("/wisata_pendidikan", get(get_wisata_pendidikan))
+        .route("/wisata_pendidikan/{id}", get(get_wisata_pendidikan_by_id))
         .with_state(state);
 
     println!("Running server on http://localhost:3000");
