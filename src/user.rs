@@ -55,14 +55,14 @@ pub async fn register_user(
 
     let hashed = hash(&payload.password, DEFAULT_COST).unwrap();
 
-    let result = sqlx::query!(
-        "INSERT INTO users(username, password, email) VALUES ($1, $2, $3)",
-        payload.username,
-        hashed,
-        payload.email,
+    let result = sqlx::query(
+        "INSERT INTO users(username, password, email) VALUES ($1, $2, $3)"
     )
-    .execute(&state.pool)
-    .await;
+        .bind(&payload.username)
+        .bind(&hashed)
+        .bind(&payload.email)
+        .execute(&state.pool)
+        .await;
 
     match result {
         Ok(_) => (

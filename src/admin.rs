@@ -32,24 +32,29 @@ pub async fn admin_register_handler(
 ) -> impl IntoResponse {
     let hashed = hash(&payload.password, DEFAULT_COST).unwrap();
 
-    let result = sqlx::query!(
-        "INSERT INTO admin(username, password, email) VALUES ($1, $2, $3)",
-        payload.username,
-        hashed,
-        payload.email
+    let query_result = sqlx::query(
+        "INSERT INTO admin (username, password, email) VALUES ($1, $2, $3)"
     )
-    .execute(&state.pool)
-    .await;
+        .bind(&payload.username)
+        .bind(&hashed)
+        .bind(&payload.email)
+        .execute(&state.pool)
+        .await;
 
-    match result {
+    match query_result {
         Ok(_) => Json(RegisterResponse {
             message: "Success create new admin".to_string(),
         }),
-        Err(err) => Json(RegisterResponse {
-            message: "Failed create new admin".to_string(),
-        }),
+
+        Err(err) => {
+            eprintln!("DB Insert Error: {:?}", err);
+            Json(RegisterResponse {
+                message: "Failed create new admin".to_string(),
+            })
+        }
     }
 }
+
 
 pub async fn admin_login_handler(
     State(state): State<AppState>,

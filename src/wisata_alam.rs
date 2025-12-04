@@ -27,20 +27,19 @@ pub async fn create_wisata(
     State(state): State<AppState>,
     Json(payload): Json<WisataSql>,
 ) -> impl IntoResponse {
-    let result = sqlx::query!(
+    let result = sqlx::query(
         "insert into wisata_alam(nama_tempat, kategori, alamat, jam_buka, jam_tutup, htm, link_gmaps, link_foto)
-        values ($1, $2, $3, $4, $5, $6, $7, $8)",
-        payload.name,
-        payload.category,
-        payload.address,
-        payload.open,
-        payload.close,
-        payload.htm,
-        payload.gmaps,
-        payload.pictures,
-    )
-    .execute(&state.pool)
-    .await;
+        values ($1, $2, $3, $4, $5, $6, $7, $8)")
+        .bind(&payload.name)
+        .bind(&payload.category)
+        .bind(&payload.address)
+        .bind(&payload.open)
+        .bind(&payload.close)
+        .bind(&payload.htm)
+        .bind(&payload.gmaps)
+        .bind(&payload.pictures)
+        .execute(&state.pool)
+        .await;
 
     match result {
         Ok(_) => (

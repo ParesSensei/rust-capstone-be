@@ -16,12 +16,13 @@ async fn main() {
     dotenvy::dotenv().ok();
 
     let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
+    // println!("DATABASE_URL = {:?}", std::env::var("DATABASE_URL"));
 
     let pool = sqlx::postgres::PgPool::connect(&db_url)
         .await
-        .expect("Failed to create Sqlite database pool");
+        .expect("Failed to create postgre database pool");
 
-    sqlx::migrate!("./migrations")
+    sqlx::migrate!()
         .run(&pool)
         .await
         .expect("Failed to run migrations");
