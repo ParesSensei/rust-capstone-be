@@ -104,6 +104,118 @@ example:
 response:
 ```Logged in```
 
+5. route("/add_wisata", post(create_wisata))  
+example:
+```json
+{
+    "name": "Gunung Slamet",
+    "category": "wisata alam",
+    "address": "Sawah Dan Kebun, Gunungsari, Kec. Pulosari, Kabupaten Pemalang, Jawa Tengah",
+    "open": "18:22",
+    "close": "23:59:00",
+    "htm": 35000,
+    "gmaps": "https://maps.app.goo.gl/DomnNsbzzUa2oxcf7",
+    "pictures": "https://jetex.id/blog/wp-content/uploads/2025/10/YouTube.jpg"
+}
+```
+response:
+```Wisata created```
+
+6. route("/wisata_alam", get(get_wisata_alam))  
+example:
+```json
+"http://localhost:3000/wisata_alam"
+```
+response:
+```json
+{
+    "name": "Gunung Slamet",
+    "category": "wisata alam",
+    "address": "Sawah Dan Kebun, Gunungsari, Kec. Pulosari, Kabupaten Pemalang, Jawa Tengah",
+    "open": "18:22",
+    "close": "23:59:00",
+    "htm": 35000,
+    "gmaps": "https://maps.app.goo.gl/DomnNsbzzUa2oxcf7",
+    "pictures": "https://jetex.id/blog/wp-content/uploads/2025/10/YouTube.jpg"
+}
+```
+
+7. route("/wisata_alam/{id}", get(get_wisata_alam_by_id))  
+example: 
+```json
+"http://localhost:3000/wisata_alam/1"
+```
+response:
+```json
+{
+    "name": "Gunung Slamet",
+    "category": "wisata alam",
+    "address": "Sawah Dan Kebun, Gunungsari, Kec. Pulosari, Kabupaten Pemalang, Jawa Tengah",
+    "open": "18:22",
+    "close": "23:59:00",
+    "htm": 35000,
+    "gmaps": "https://maps.app.goo.gl/DomnNsbzzUa2oxcf7",
+    "pictures": "https://jetex.id/blog/wp-content/uploads/2025/10/YouTube.jpg"
+}
+```
+8. route("/add_wisata_pendidikan", post(create_wisata_pendidikan))  
+example:
+```json
+{
+    "name": "The forest island",
+    "category": "wisata edukasi",
+    "address": "Jl. Raya Baturaden No.Km. 6, Dusun I Pandak, Pandak, Kec. Baturaden, Kabupaten Banyumas, Jawa Tengah 53151",
+    "open": "08:00",
+    "close": "17:00",
+    "htm": 7000,
+    "gmaps": "https://maps.app.goo.gl/jbwkqV1ZnhSH3x3XA",
+    "pictures": "https://jetex.id/blog/wp-content/uploads/2025/10/YouTube.jpg"
+}
+```
+response: 
+```Wisata created```
+
+9. route("/wisata_pendidikan", get(get_wisata_pendidikan))  
+example:
+```json
+"http://localhost:3000/wisata_pendidikan"
+```
+response:
+```json
+{
+    "name": "The forest island",
+    "category": "wisata edukasi",
+    "address": "Jl. Raya Baturaden No.Km. 6, Dusun I Pandak, Pandak, Kec. Baturaden, Kabupaten Banyumas, Jawa Tengah 53151",
+    "open": "08:00",
+    "close": "17:00",
+    "htm": 7000,
+    "gmaps": "https://maps.app.goo.gl/jbwkqV1ZnhSH3x3XA",
+    "pictures": "https://jetex.id/blog/wp-content/uploads/2025/10/YouTube.jpg"
+}
+```
+
+10. route("/wisata_pendidikan/{id}", get(get_wisata_pendidikan_by_id))  
+    example:
+```json
+"http://localhost:3000/wisata_pendidikan/1"
+```
+response:
+```json
+{
+    "name": "The forest island",
+    "category": "wisata edukasi",
+    "address": "Jl. Raya Baturaden No.Km. 6, Dusun I Pandak, Pandak, Kec. Baturaden, Kabupaten Banyumas, Jawa Tengah 53151",
+    "open": "08:00",
+    "close": "17:00",
+    "htm": 7000,
+    "gmaps": "https://maps.app.goo.gl/jbwkqV1ZnhSH3x3XA",
+    "pictures": "https://jetex.id/blog/wp-content/uploads/2025/10/YouTube.jpg"
+}
+```
+.route("/kuliner", post(create_kuliner))
+.route("/get_kuliner", get(get_kuliner))
+.route("/kuliner/{id}", get(get_kuliner_id))
+
 # 📚 Database migrations error
 because of the database error, so currently we are creating a manual database without migration.
 you can check in [schema_manual.txt](schema_manual.txt)
