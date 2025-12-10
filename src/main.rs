@@ -7,20 +7,24 @@ mod user;
 mod wisata_alam;
 mod wisata_pendidikan;
 mod kuliner;
+mod tempat_nongkrong;
 
 use crate::app_state::AppState;
 use crate::wisata_alam::create_wisata;
-use admin::admin_login_handler;
-use admin::admin_register_handler;
-use user::{login_user, register_user};
-use wisata_alam::get_wisata_alam;
-use wisata_alam::get_wisata_alam_by_id;
+use crate::admin::admin_login_handler;
+use crate::admin::admin_register_handler;
+use crate::user::{login_user, register_user};
+use crate::wisata_alam::get_wisata_alam;
+use crate::wisata_alam::get_wisata_alam_by_id;
 use crate::wisata_pendidikan::get_wisata_pendidikan_by_id;
 use crate::wisata_pendidikan::get_wisata_pendidikan;
 use crate::wisata_pendidikan::create_wisata_pendidikan;
 use crate::kuliner::create_kuliner;
 use crate::kuliner::get_kuliner;
 use crate::kuliner::get_kuliner_id;
+use crate::tempat_nongkrong::get_tempat_nongkrong;
+use crate::tempat_nongkrong::get_tempat_nongkrong_id;
+use crate::tempat_nongkrong::create_tempat_nongkrong;
 
 #[tokio::main]
 async fn main() {
@@ -54,6 +58,9 @@ async fn main() {
         .route("/kuliner", post(create_kuliner))
         .route("/get_kuliner", get(get_kuliner))
         .route("/kuliner/{id}", get(get_kuliner_id))
+        .route("/tempat_nongkrong", get(get_tempat_nongkrong))
+        .route("/add_tempat_nongkrong", post(create_tempat_nongkrong))
+        .route("/tempat_nongkrong/{id}", get(get_tempat_nongkrong_id))
         .with_state(state);
 
     println!("Running server on http://localhost:3000");

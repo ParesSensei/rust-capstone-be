@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
 #[derive(Deserialize)]
-pub struct WisataSql {
+pub struct TempatNongkrongSql {
     name: String,
     category: String,
     address: String,
@@ -19,7 +19,7 @@ pub struct WisataSql {
 }
 
 #[derive(Serialize, FromRow)]
-pub struct WisataResponseModel {
+pub struct TempatNongkrongResponseModel {
     nama_tempat: String,
     kategori: String,
     alamat: String,
@@ -31,17 +31,17 @@ pub struct WisataResponseModel {
 }
 
 #[derive(Serialize)]
-pub struct WisataResponse {
+pub struct TempatNongkrongResponse {
     pub message: String,
 }
 
 #[debug_handler]
-pub async fn create_wisata(
+pub async fn create_tempat_nongkrong(
     State(state): State<AppState>,
-    Json(payload): Json<WisataSql>,
+    Json(payload): Json<TempatNongkrongSql>,
 ) -> impl IntoResponse {
     let result = sqlx::query(
-        "insert into wisata_alam(nama_tempat, kategori, alamat, jam_buka, jam_tutup, htm, link_gmaps, link_foto)
+        "insert into tempat_nongkrong(nama_tempat, kategori, alamat, jam_buka, jam_tutup, htm, link_gmaps, link_foto)
         values ($1, $2, $3, $4, $5, $6, $7, $8)")
         .bind(&payload.name)
         .bind(&payload.category)
@@ -57,14 +57,14 @@ pub async fn create_wisata(
     match result {
         Ok(_) => (
             StatusCode::OK,
-            Json(WisataResponse {
-                message: "Wisata created".to_string(),
+            Json(TempatNongkrongResponse {
+                message: "Tempat nongkrong created".to_string(),
             }),
         ),
 
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
-            Json(WisataResponse {
+            Json(TempatNongkrongResponse {
                 message: format!("erorr: {}", e),
             }),
         ),
@@ -72,10 +72,10 @@ pub async fn create_wisata(
 }
 
 #[debug_handler]
-pub async fn get_wisata_alam(State(state): State<AppState>) -> impl IntoResponse {
-    let result = sqlx::query_as::<_, WisataResponseModel>("select * from wisata_alam")
-    .fetch_all(&state.pool)
-    .await;
+pub async fn get_tempat_nongkrong(State(state): State<AppState>) -> impl IntoResponse {
+    let result = sqlx::query_as::<_, TempatNongkrongResponseModel>("select * from tempat_nongkrong")
+        .fetch_one(&state.pool)
+        .await;
 
     match result {
         Ok(data) => Json(data).into_response(),
@@ -86,9 +86,9 @@ pub async fn get_wisata_alam(State(state): State<AppState>) -> impl IntoResponse
     }
 }
 
-pub async fn get_wisata_alam_by_id(State(state): State<AppState>, Path(id): Path<i32>) -> impl IntoResponse {
-    let result = sqlx::query_as::<_, WisataResponseModel>(
-        "SELECT * FROM wisata_alam WHERE id = $1"
+pub async fn get_tempat_nongkrong_id(State(state): State<AppState>, Path(id): Path<i32>) -> impl IntoResponse {
+    let result = sqlx::query_as::<_, TempatNongkrongResponseModel>(
+        "SELECT * FROM tempat_nongkrong WHERE id = $1"
     ).bind(id).fetch_optional(&state.pool).await;
 
     match result {
