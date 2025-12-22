@@ -1,102 +1,100 @@
-use crate::app_state::AppState;
-use axum::extract::{Path, State};
-use axum::http::StatusCode;
-use axum::response::IntoResponse;
-use axum::{debug_handler, Json};
+use axum::{
+    extract::{Path, State},
+    http::StatusCode,
+    Json,
+};
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
-#[derive(Deserialize)]
-pub struct TempatNongkrongSql {
-    name: String,
-    category: String,
-    address: String,
-    open: String,
-    close: String,
-    htm: i32,
-    gmaps: String,
-    pictures: String,
+use crate::app_state::AppState;
+
+#[derive(Debug, Serialize, FromRow)]
+pub struct TempatNongkrong {
+    pub id: i32,
+    pub nama_tempat: String,
+    pub kategori: String,
+    pub alamat: String,
+    pub jam_buka: String,
+    pub jam_tutup: String,
+    pub htm: i32,
+    pub link_gmaps: String,
+    pub link_foto: String,
+    pub deskripsi: Option<String>,
 }
 
-#[derive(Serialize, FromRow)]
-pub struct TempatNongkrongResponseModel {
-    nama_tempat: String,
-    kategori: String,
-    alamat: String,
-    jam_buka: String,
-    jam_tutup: String,
-    htm: i32,
-    link_gmaps: String,
-    link_foto: String,
+#[derive(Debug, Deserialize)]
+pub struct TempatNongkrongPayload {
+    pub nama_tempat: String,
+    pub kategori: String,
+    pub alamat: String,
+    pub jam_buka: String,
+    pub jam_tutup: String,
+    pub htm: i32,
+    pub link_gmaps: String,
+    pub link_foto: String,
+    pub deskripsi: Option<String>,
 }
 
-#[derive(Serialize)]
-pub struct TempatNongkrongResponse {
-    pub message: String,
+pub async fn get_tempat_nongkrong(
+    State(state): State<AppState>,
+) -> Result<Json<Vec<TempatNongkrong>>, (StatusCode, String)> {
+    let rows = sqlx::query_as::<_, TempatNongkrong>(
+        r#"
+        SELECT id, nama_tempat, kategori, alamat, jam_buka, jam_tutup, htm, link_gmaps, link_foto, deskripsi
+        FROM tempat_nongkrong
+        ORDER BY id
+        "#,
+    )
+    .fetch_all(&state.pool)
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {e:?}")))?;
+
+    Ok(Json(rows))
 }
 
-#[debug_handler]
+pub async fn get_tempat_nongkrong_id(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Json<TempatNongkrong>, (StatusCode, String)> {
+    let row = sqlx::query_as::<_, TempatNongkrong>(
+        r#"
+        SELECT id, nama_tempat, kategori, alamat, jam_buka, jam_tutup, htm, link_gmaps, link_foto, deskripsi
+        FROM tempat_nongkrong
+        WHERE id = $1
+        "#,
+    )
+    .bind(id)
+    .fetch_one(&state.pool)
+    .await
+    .map_err(|e| (StatusCode::NOT_FOUND, format!("Not found / DB error: {e:?}")))?;
+
+    Ok(Json(row))
+}
+
 pub async fn create_tempat_nongkrong(
     State(state): State<AppState>,
-    Json(payload): Json<TempatNongkrongSql>,
-) -> impl IntoResponse {
-    let result = sqlx::query(
-        "insert into tempat_nongkrong(nama_tempat, kategori, alamat, jam_buka, jam_tutup, htm, link_gmaps, link_foto)
-        values ($1, $2, $3, $4, $5, $6, $7, $8)")
-        .bind(&payload.name)
-        .bind(&payload.category)
-        .bind(&payload.address)
-        .bind(&payload.open)
-        .bind(&payload.close)
-        .bind(&payload.htm)
-        .bind(&payload.gmaps)
-        .bind(&payload.pictures)
-        .execute(&state.pool)
-        .await;
+    Json(payload): Json<TempatNongkrongPayload>,
+) -> Result<(StatusCode, Json<TempatNongkrong>), (StatusCode, String)> {
+    let inserted = sqlx::query_as::<_, TempatNongkrong>(
+        r#"
+        INSERT INTO tempat_nongkrong
+          (nama_tempat, kategori, alamat, jam_buka, jam_tutup, htm, link_gmaps, link_foto, deskripsi)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+        RETURNING id, nama_tempat, kategori, alamat, jam_buka, jam_tutup, htm, link_gmaps, link_foto, deskripsi
+        "#,
+    )
+    .bind(payload.nama_tempat)
+    .bind(payload.kategori)
+    .bind(payload.alamat)
+    .bind(payload.jam_buka)
+    .bind(payload.jam_tutup)
+    .bind(payload.htm)
+    .bind(payload.link_gmaps)
+    .bind(payload.link_foto)
+    .bind(payload.deskripsi)
+    .fetch_one(&state.pool)
+    .await
+    .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("DB error: {e:?}")))?;
 
-    match result {
-        Ok(_) => (
-            StatusCode::OK,
-            Json(TempatNongkrongResponse {
-                message: "Tempat nongkrong created".to_string(),
-            }),
-        ),
-
-        Err(e) => (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(TempatNongkrongResponse {
-                message: format!("erorr: {}", e),
-            }),
-        ),
-    }
-}
-
-#[debug_handler]
-pub async fn get_tempat_nongkrong(State(state): State<AppState>) -> impl IntoResponse {
-    let result = sqlx::query_as::<_, TempatNongkrongResponseModel>("select * from tempat_nongkrong")
-        .fetch_one(&state.pool)
-        .await;
-
-    match result {
-        Ok(data) => Json(data).into_response(),
-        Err(err) => {
-            eprintln!("Db error {:?}", err);
-            StatusCode::INTERNAL_SERVER_ERROR.into_response()
-        }
-    }
-}
-
-pub async fn get_tempat_nongkrong_id(State(state): State<AppState>, Path(id): Path<i32>) -> impl IntoResponse {
-    let result = sqlx::query_as::<_, TempatNongkrongResponseModel>(
-        "SELECT * FROM tempat_nongkrong WHERE id = $1"
-    ).bind(id).fetch_optional(&state.pool).await;
-
-    match result {
-        Ok(Some(data)) => Json(data).into_response(),
-        Ok(None) => (StatusCode::NOT_FOUND, "Not found").into_response(),
-        Err(err) => {
-            eprintln!("DB error: {:?}", err);
-            StatusCode::INTERNAL_SERVER_ERROR.into_response()
-        }
-    }
+    Ok((StatusCode::CREATED, Json(inserted)))
 }
