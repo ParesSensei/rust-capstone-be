@@ -4,7 +4,7 @@ use axum::{
     Router,
 };
 use tower_http::cors::{Any, CorsLayer};
-
+use std::net::SocketAddr;
 // --- DAFTAR MODUL ---
 mod admin;
 mod app_state;
@@ -119,9 +119,20 @@ async fn main() {
 
     println!("Running server on http://localhost:3000");
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
+    /// port for railway
+    let port: u16 = std::env::var("PORT")
+        .unwrap_or_else(|_| "3000".to_string())
+        .parse()
+        .expect("PORT must be a number");
+
+    let addr: SocketAddr = format!("0.0.0.0:{}", port)
+        .parse::<SocketAddr>()
+        .expect("Invalid socket address");
+
+    let listener = tokio::net::TcpListener::bind(addr)
         .await
         .unwrap();
 
     axum::serve(listener, app).await.unwrap();
+
 }
