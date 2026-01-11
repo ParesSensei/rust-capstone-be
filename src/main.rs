@@ -8,6 +8,7 @@ mod wisata_alam;
 mod wisata_pendidikan;
 mod kuliner;
 mod tempat_nongkrong;
+mod auth;
 
 use crate::app_state::AppState;
 use crate::wisata_alam::create_wisata;
